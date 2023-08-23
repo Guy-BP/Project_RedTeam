@@ -1,7 +1,13 @@
-FROM node:latest
-WORKDIR /serverapp
+FROM node
+
+WORKDIR /app
+
 COPY package*.json ./
+
 RUN npm install
-COPY . .
+
+ADD . .
+
 EXPOSE 3001
+
 CMD ["node", "index.js"]
