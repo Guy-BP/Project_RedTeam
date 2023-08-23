@@ -30,7 +30,7 @@ pipeline {
                     try {
                         sh 'sleep 15'
 
-                        def pytestContainer = docker.image(PYTEST_IMAGE_NAME).run()
+                        def pytestContainer = docker.image(PYTEST_IMAGE_NAME).run('-it', '--rm')
 
                         try {
                             def pytestExitCode = pytestContainer.waitForCondition(10, TimeUnit.SECONDS) { container -> container.exitCode }
@@ -39,6 +39,7 @@ pipeline {
                                 error("Pytest failed with exit code: ${pytestExitCode}")
                             }
                         } finally {
+                            pytestContainer.stop()
                             pytestContainer.remove(force: true)
                         }
                     } finally {
@@ -58,4 +59,5 @@ pipeline {
         }
     }
 }
+
 
