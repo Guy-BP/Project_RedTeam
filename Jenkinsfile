@@ -10,7 +10,6 @@ pipeline {
 
     options {
         skipDefaultCheckout()
-        errorPolicy('all')
     }
 
     stages {
@@ -23,30 +22,32 @@ pipeline {
         stage('Run Server and Front Containers') {
             agent any
             steps {
-                script {
-                    def serverContainer = docker.image(SERVER_IMAGE_NAME).run('-p 3001:3001 -d')
-                    def frontContainer = docker.image(FRONT_IMAGE_NAME).run('-p 3000:3000 -d')
-
-                    try {
-                        sh 'sleep 15'
-
-                        def pytestContainer = docker.image(PYTEST_IMAGE_NAME).run('-it', '--rm')
+                catchError(buildResult: 'FAILURE') {
+                    script {
+                        def serverContainer = docker.image(SERVER_IMAGE_NAME).run('-p 3001:3001 -d')
+                        def frontContainer = docker.image(FRONT_IMAGE_NAME).run('-p 3000:3000 -d')
 
                         try {
-                            def pytestExitCode = pytestContainer.waitForCondition(10, TimeUnit.SECONDS) { container -> container.exitCode }
+                            sh 'sleep 15'
 
-                            if (pytestExitCode != 0) {
-                                error("Pytest failed with exit code: ${pytestExitCode}")
+                            def pytestContainer = docker.image(PYTEST_IMAGE_NAME).run('-it', '--rm')
+
+                            try {
+                                def pytestExitCode = pytestContainer.waitForCondition(10, TimeUnit.SECONDS) { container -> container.exitCode }
+
+                                if (pytestExitCode != 0) {
+                                    error("Pytest failed with exit code: ${pytestExitCode}")
+                                }
+                            } finally {
+                                pytestContainer.stop()
+                                pytestContainer.remove(force: true)
                             }
                         } finally {
-                            pytestContainer.stop()
-                            pytestContainer.remove(force: true)
+                            frontContainer.stop()
+                            frontContainer.remove(force: true)
+                            serverContainer.stop()
+                            serverContainer.remove(force: true)
                         }
-                    } finally {
-                        frontContainer.stop()
-                        frontContainer.remove(force: true)
-                        serverContainer.stop()
-                        serverContainer.remove(force: true)
                     }
                 }
             }
