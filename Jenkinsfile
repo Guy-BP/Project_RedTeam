@@ -27,7 +27,7 @@ pipeline {
 
         stage('Run Containers') {
             agent {
-                docker {
+                any {
                     image 'docker'
                     args '-u root'
                 }
