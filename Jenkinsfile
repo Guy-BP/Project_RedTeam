@@ -2,23 +2,12 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = 'https://github.com/Guy-BP/Project_RedTeam.git'
         SERVER_IMAGE_NAME = 'guy66bp/reactapp_server'
         FRONT_IMAGE_NAME = 'guy66bp/reactapp_front'
         PYTEST_IMAGE_NAME = 'guy66bp/reactapp_pytest'
     }
 
-    options {
-        skipDefaultCheckout()
-    }
-
     stages {
-        stage('Checkout') {
-            steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: REPO_URL]]])
-            }
-        }
-
         stage('Run Server and Front Containers') {
             agent any
             steps {
@@ -54,5 +43,6 @@ pipeline {
         }
     }
 }
+
 
 
