@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerpss')
-        AWS_SECRET_KEY = credentials('awsecret')
+        DOCKERHUB_CREDENTIALS = params.dockerpss
+        AWS_SECRET_KEY = params.awsecret
     }
     stages {
         stage('Checkout') {
