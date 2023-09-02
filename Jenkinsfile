@@ -1,57 +1,68 @@
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('Build and Push Docker Images') {
             steps {
-                sh 'docker build -t guy66bp/appserver ./server'
-                sh 'docker build -t guy66bp/appfront ./frontend'
-            }
-        }
-        stage('Deploy Containers') {
-            steps {
-                sh 'docker run -d -p 3001:3001 guy66bp/appserver'
-                sh 'sleep 5' // Give the container some time to start up
-                sh 'docker run -d -p 3000:3000 guy66bp/appfront'
-                sh 'sleep 5' // Give the container some time to start up
-            }
-        }
-        stage('Run Tests') {
-            steps {
-                sh 'python3 -m pytest --junitxml=testresault.xml test/test.py'
-            }
-        }
-        stage('Login and Push') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'DOCKER_USER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
+                script {
+                    // Log in to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'DOCKER_USER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
+                    }
+                    
+                    // Build and push Docker images
+                    sh 'docker build -t guy66bp/appserver ./server'
                     sh 'docker push guy66bp/appserver'
+                    sh 'docker build -t guy66bp/appfront ./frontend'
                     sh 'docker push guy66bp/appfront'
                 }
             }
         }
-        stage('Remove images') {
+        
+        stage('Deploy Containers') {
             steps {
-                sh 'docker kill $(docker ps -q)'
-                sh 'docker rmi -f guy66bp/appserver'
-                sh 'docker rmi -f guy66bp/appfront'
+                // Deploy containers here
+                sh 'docker run -d -p 3001:3001 guy66bp/appserver'
+                sh 'sleep 5'
+                sh 'docker run -d -p 3000:3000 guy66bp/appfront'
+                sh 'sleep 5'
             }
         }
-        stage('TF init&plan') {
+
+        stage('Run Tests') {
             steps {
-                sh 'AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)'
-                sh 'AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)'
+                // Run your tests here
+                sh 'python3 -m pytest --junitxml=testresault.xml test/test.py'
+            }
+        }
+
+        stage('Terraform Init & Plan') {
+            steps {
+                // Use AWS CLI to configure AWS credentials
+                withCredentials([string(credentialsId: 'AWS_ACCESS', variable: 'AWS_ACCESS_KEY_ID'),
+                                 string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh 'aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"'
+                    sh 'aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"'
+                }
+                
+                // Initialize and plan Terraform
                 sh 'terraform init'
                 sh 'terraform plan'
             }
         }
-        stage('TF Approval') {
+
+        stage('Terraform Apply') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
             steps {
+                // Apply Terraform changes (only if the previous stages were successful)
                 sh 'terraform apply -auto-approve'
             }
         }
     }
     post {
         always {
+            // Log out of Docker Hub
             sh 'docker logout'
         }
 
@@ -65,3 +76,4 @@ pipeline {
         }
     }
 }
+
