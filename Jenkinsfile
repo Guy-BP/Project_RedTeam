@@ -39,8 +39,8 @@ pipeline {
         }
         stage('TF init&plan') {
             steps {
-                sh 'echo "$AWS_SECRET_KEY" > aws_secret_key.txt'
-                sh 'terraform init -backend-config="access_key=AKIAWGJSY6XBLG5SF6NF" -backend-config="secret_key=$(cat aws_secret_key.txt)"'
+                sh 'export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_KEY"'
+                sh 'terraform init'
                 sh 'terraform plan'
             }
         }
