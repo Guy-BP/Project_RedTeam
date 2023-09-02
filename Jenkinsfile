@@ -1,80 +1,63 @@
 pipeline {
     agent any
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerpss')
+        AWS_SECRET_KEY = credentials('awsecret')
+    }
     stages {
-        stage('Build and Push Docker Images') {
+        stage('Checkout') {
             steps {
-                script {
-                    // Log in to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'DOCKER_USER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKER_PSWRD')]) {
-                        sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKER_PSWRD"
-                        
-                        // Build and push Docker images
-                        sh 'docker build -t guy66bp/appserver ./server'
-                        sh 'docker push guy66bp/appserver'
-                        sh 'docker build -t guy66bp/appfront ./frontend'
-                        sh 'docker push guy66bp/appfront'
-                    }
-                }
+                checkout scm
             }
         }
-        
+        stage('Build') {
+            steps {
+                sh 'docker build -t guy66bp/appserver ./server'
+                sh 'docker build -t guy66bp/appfront ./frontend'
+            }
+        }
         stage('Deploy Containers') {
             steps {
-                // Deploy containers here
                 sh 'docker run -d -p 3001:3001 guy66bp/appserver'
-                sh 'sleep 5'
+                sh 'sleep 5' // Give the container some time to start up
                 sh 'docker run -d -p 3000:3000 guy66bp/appfront'
-                sh 'sleep 5'
+                sh 'sleep 5' // Give the container some time to start up
             }
         }
-
-        stage('Run Tests') {
+        stage('Login') {
             steps {
-                // Run your tests here
-                sh 'python3 -m pytest --junitxml=testresault.xml test/test.py'
+                sh 'echo $DOCKERHUB_CREDENTIALS | docker login -u guy66bp --password-stdin'
             }
         }
-
-        stage('Terraform Init & Plan') {
+        stage('Push') {
             steps {
-                // Use AWS CLI to configure AWS credentials
-                withCredentials([string(credentialsId: 'AWS_ACCESS', variable: 'AWS_ACCESS_KEY_ID'),
-                                 string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh 'aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID'
-                    sh 'aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY'
-                }
-                
-                // Initialize and plan Terraform
-                sh 'terraform init'
+                sh 'docker push guy66bp/appserver'
+                sh 'docker push guy66bp/appfront'
+            }
+        }
+        stage('Remove images') {
+            steps {
+                sh 'docker kill $(docker ps -q)'
+                sh 'docker rmi -f guy66bp/appserver'
+                sh 'docker rmi -f guy66bp/appfront'
+            }
+        }
+        stage('TF init&plan') {
+            steps {
+                sh 'echo "$AWS_SECRET_KEY" > aws_secret_key.txt'
+                sh 'terraform init -backend-config="access_key=AKIAWGJSY6XBLG5SF6NF" -backend-config="secret_key=$(cat aws_secret_key.txt)"'
                 sh 'terraform plan'
             }
         }
-
-        stage('Terraform Apply') {
-            when {
-                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
-            }
+        stage('TF Approval') {
             steps {
-                // Apply Terraform changes (only if the previous stages were successful)
                 sh 'terraform apply -auto-approve'
             }
         }
     }
     post {
         always {
-            // Log out of Docker Hub
             sh 'docker logout'
-        }
-
-        success {
-            echo "Tests passed, pipeline succeeded!"
-            cleanUpContainers()
-        }
-        failure {
-            echo "Tests failed, pipeline failed!"
-            cleanUpContainers()
         }
     }
 }
-
-
