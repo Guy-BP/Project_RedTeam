@@ -32,7 +32,8 @@ pipeline {
         stage('Push') {
             steps {
                 sh 'docker push guy66bp/appserver'
-                sh 'docker push guy66bp/appfront'     sh 'docker rmi -f guy66bp/appserver'
+                sh 'docker push guy66bp/appfront'     
+                sh 'docker rmi -f guy66bp/appserver'
                 sh 'docker rmi -f guy66bp/appfront'
             }
         }
