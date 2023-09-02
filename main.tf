@@ -1,3 +1,6 @@
+variable "AWS_SECRET_ACCESS_KEY" {
+  description = "AWS secret access key"
+}
 provider "aws" {
    access_key = "AKIAWGJSY6XBLG5SF6NF" 
    secret_key = var.AWS_SECRET_ACCESS_KEY  
