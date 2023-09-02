@@ -1,11 +1,11 @@
 pipeline {
     agent any
-	environment {
+    environment {
         DOCKERHUB_USERNAME = credentials('DOCKER_USER').username
         DOCKERHUB_PASSWORD = credentials('DOCKER_PSWRD').password
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS').accessKeyId
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SHEKET').secretKey
-	}
+    }
     stages {
         stage('Build') {
             steps {
@@ -21,21 +21,18 @@ pipeline {
                 sh 'sleep 5' // Give the container some time to start up
             }
         }
-        // Uncomment this section if you want to include a 'Run Tests' stage
-        // stage('Run Tests') {
-        //     steps {
-        //         sh 'python3 -m pytest --junitxml==testresault.xml test/test.py'
-        //     }
-        // }
-        stage('Login') {
+         stage('Run Tests') {
+             steps {
+                 sh 'python3 -m pytest --junitxml==testresault.xml test/test.py'
+             }
+         }
+        stage('Login and Push') {
             steps {
-                sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
-            }
-        }
-        stage('Push') {
-            steps {
-                sh 'docker push guy66bp/appserver'
-                sh 'docker push guy66bp/appfront'
+                withCredentials([usernamePassword(credentialsId: 'DOCKER_USER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
+                    sh 'docker push guy66bp/appserver'
+                    sh 'docker push guy66bp/appfront'
+                }
             }
         }
         stage('Remove images') {
@@ -49,7 +46,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'AWS_ACCESS', variable: 'AWS_ACCESS_KEY_ID'),
-                                    string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                                     string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
                         sh 'terraform init'
                         sh 'terraform plan'
                     }
@@ -58,22 +55,27 @@ pipeline {
         }
         stage('TF Approval') {
             steps {
-                sh 'terraform apply -auto-approve'
+                script {
+                    withCredentials([string(credentialsId: 'AWS_ACCESS', variable: 'AWS_ACCESS_KEY_ID'),
+                                     string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh 'terraform apply -auto-approve'
+                    }
+                }
             }
         }
-    } // Closing curly brace for the 'stages' block
+    }
     post {
         always {
             sh 'docker logout'
         }
-        // Uncomment this section if you want to include success and failure conditions
-        // success {
-        //     echo "Tests passed, pipeline succeeded!"
-        //     cleanUpContainers()
-        // }
-        // failure {
-        //     echo "Tests failed, pipeline failed!"
-        //     cleanUpContainers()
-        // }
+
+         success {
+             echo "Tests passed, pipeline succeeded!"
+             cleanUpContainers()
+         }
+         failure {
+             echo "Tests failed, pipeline failed!"
+             cleanUpContainers()
+         }
     }
-} // Closing curly brace for the 'pipeline' block
+}
