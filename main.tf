@@ -1,9 +1,10 @@
 variable "AWS_SECRET_ACCESS_KEY" {
   description = "AWS secret access key"
+  value = "$(AWS_SECRET_KEY)"
 }
 provider "aws" {
    access_key = "AKIAWGJSY6XBLG5SF6NF" 
-   secret_key = var.AWS_SECRET_ACCESS_KEY  
+   secret_key = var.AWS_SECRET_ACCESS_KEY
    region     = "eu-central-1"
 }
     variable "awsprops" {
