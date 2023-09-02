@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIALS = password('dockerpss')
-        AWS_SECRET_KEY = password('awsecret')
+        DOCKERHUB_CREDENTIALS = env.dockerpss
+        AWS_SECRET_KEY = env.awsecret
     }
     stages {
         stage('Checkout') {
@@ -32,13 +32,7 @@ pipeline {
         stage('Push') {
             steps {
                 sh 'docker push guy66bp/appserver'
-                sh 'docker push guy66bp/appfront'
-            }
-        }
-        stage('Remove images') {
-            steps {
-                sh 'docker kill $(docker ps -q)'
-                sh 'docker rmi -f guy66bp/appserver'
+                sh 'docker push guy66bp/appfront'     sh 'docker rmi -f guy66bp/appserver'
                 sh 'docker rmi -f guy66bp/appfront'
             }
         }
@@ -49,7 +43,13 @@ pipeline {
                 sh 'terraform plan'
             }
         }
-        stage('TF Approval') {
+
+            }
+        }
+        stage('Remove images') {
+            steps {
+                sh 'docker kill $(docker ps -q)'
+                   stage('TF Approval') {
             steps {
                 sh 'terraform apply -auto-approve'
             }
