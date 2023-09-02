@@ -11,66 +11,69 @@ pipeline {
             steps {
                 sh 'docker build -t guy66bp/appserver ./server'
                 sh 'docker build -t guy66bp/appfront ./frontend'
-	    }
-	}
+            }
+        }
         stage('Deploy Containers') {
             steps {
-		sh 'docker run -d -p 3001:3001 guy66bp/appserver'
+                sh 'docker run -d -p 3001:3001 guy66bp/appserver'
                 sh 'sleep 5' // Give the container some time to start up
-		sh 'docker run -d -p 3000:3000 guy66bp/appfront'
+                sh 'docker run -d -p 3000:3000 guy66bp/appfront'
                 sh 'sleep 5' // Give the container some time to start up
             }
         }
-//        stage('Run Tests') {
-//            steps {
-//                sh 'python3 -m pytest --junitxml==testresault.xml test/test.py'
-//            }
-//       }
-	    stage('Login') {
-	    	steps {
-		    	sh 'echo $DOCKER_PSWRD | docker login -u $DOCKER_USER --password-stdin'
-		    }
-	    }
-	    stage('Push') {
-		    steps {
-			sh 'docker push guy66bp/appserver'
-		    	sh 'docker push guy66bp/appfront'
-		    }
-	    }
-	    stage('Remove images') {
-		    steps {
-			    sh 'docker kill $(docker ps -q)'
-			    sh 'docker rmi -f guy66bp/appserver'
-			    sh 'docker rmi -f guy66bp/appfront'
+        // Uncomment this section if you want to include a 'Run Tests' stage
+        // stage('Run Tests') {
+        //     steps {
+        //         sh 'python3 -m pytest --junitxml==testresault.xml test/test.py'
+        //     }
+        // }
+        stage('Login') {
+            steps {
+                sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
             }
-		}
+        }
+        stage('Push') {
+            steps {
+                sh 'docker push guy66bp/appserver'
+                sh 'docker push guy66bp/appfront'
+            }
+        }
+        stage('Remove images') {
+            steps {
+                sh 'docker kill $(docker ps -q)'
+                sh 'docker rmi -f guy66bp/appserver'
+                sh 'docker rmi -f guy66bp/appfront'
+            }
+        }
         stage('TF init&plan') {
-    steps {
-        script {
-            withCredentials([string(credentialsId: 'AWS_ACCESS', variable: 'AWS_ACCESS_KEY_ID'),
-                            string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                sh 'terraform init'
-                sh 'terraform plan'
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'AWS_ACCESS', variable: 'AWS_ACCESS_KEY_ID'),
+                                    string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh 'terraform init'
+                        sh 'terraform plan'
+                    }
+                }
             }
-	    }
+        }
         stage('TF Approval') {
             steps {
                 sh 'terraform apply -auto-approve'
             }
         }
+    } // Closing curly brace for the 'stages' block
+    post {
+        always {
+            sh 'docker logout'
+        }
+        // Uncomment this section if you want to include success and failure conditions
+        // success {
+        //     echo "Tests passed, pipeline succeeded!"
+        //     cleanUpContainers()
+        // }
+        // failure {
+        //     echo "Tests failed, pipeline failed!"
+        //     cleanUpContainers()
+        // }
     }
-post {
- 	always {
- 		sh 'docker logout'
- 	}
-//         success {
-//             echo "Tests passed, pipeline succeeded!"
-//             cleanUpContainers()
-//         }
-//         failure {
-//             echo "Tests failed, pipeline failed!"
-//             cleanUpContainers()
-//         }
-//     }
-    }
-}
+} // Closing curly brace for the 'pipeline' block
