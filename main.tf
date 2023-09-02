@@ -1,6 +1,6 @@
 variable "AWS_SECRET_ACCESS_KEY" {
   description = "AWS secret access key"
-  value = "$(AWS_SECRET_KEY)"
+  default = "$(AWS_SECRET_KEY)"
 }
 provider "aws" {
    access_key = "AKIAWGJSY6XBLG5SF6NF" 
