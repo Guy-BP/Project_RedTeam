@@ -1,11 +1,5 @@
 pipeline {
     agent any
-    environment {
-        DOCKERHUB_USERNAME = credentials('DOCKER_USER').username
-        DOCKERHUB_PASSWORD = credentials('DOCKER_PSWRD')
-        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS').accessKeyId
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SHEKET').secretKey
-    }
     stages {
         stage('Build') {
             steps {
@@ -44,23 +38,15 @@ pipeline {
         }
         stage('TF init&plan') {
             steps {
-                script {
-                    withCredentials([string(credentialsId: 'AWS_ACCESS', variable: 'AWS_ACCESS_KEY_ID'),
-                                     string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        sh 'terraform init'
-                        sh 'terraform plan'
-                    }
-                }
+                sh 'AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)'
+                sh 'AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)'
+                sh 'terraform init'
+                sh 'terraform plan'
             }
         }
         stage('TF Approval') {
             steps {
-                script {
-                    withCredentials([string(credentialsId: 'AWS_ACCESS', variable: 'AWS_ACCESS_KEY_ID'),
-                                     string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        sh 'terraform apply -auto-approve'
-                    }
-                }
+                sh 'terraform apply -auto-approve'
             }
         }
     }
