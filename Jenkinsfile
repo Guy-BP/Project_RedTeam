@@ -5,15 +5,15 @@ pipeline {
             steps {
                 script {
                     // Log in to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'DOCKER_USER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
+                    withCredentials([usernamePassword(credentialsId: 'DOCKER_USER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKER_PSWRD')]) {
+                        sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKER_PSWRD"
+                        
+                        // Build and push Docker images
+                        sh 'docker build -t guy66bp/appserver ./server'
+                        sh 'docker push guy66bp/appserver'
+                        sh 'docker build -t guy66bp/appfront ./frontend'
+                        sh 'docker push guy66bp/appfront'
                     }
-                    
-                    // Build and push Docker images
-                    sh 'docker build -t guy66bp/appserver ./server'
-                    sh 'docker push guy66bp/appserver'
-                    sh 'docker build -t guy66bp/appfront ./frontend'
-                    sh 'docker push guy66bp/appfront'
                 }
             }
         }
@@ -40,8 +40,8 @@ pipeline {
                 // Use AWS CLI to configure AWS credentials
                 withCredentials([string(credentialsId: 'AWS_ACCESS', variable: 'AWS_ACCESS_KEY_ID'),
                                  string(credentialsId: 'AWS_SHEKET', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh 'aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"'
-                    sh 'aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"'
+                    sh 'aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID'
+                    sh 'aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY'
                 }
                 
                 // Initialize and plan Terraform
@@ -76,4 +76,5 @@ pipeline {
         }
     }
 }
+
 
