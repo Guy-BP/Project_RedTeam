@@ -3,8 +3,6 @@ provider "aws" {
    secret_key = var.AWS_SECRET_ACCESS_KEY  
    region     = "eu-central-1"
 }
-        
-]
     variable "awsprops" {
         default = {
             region = "eu-central-1"
