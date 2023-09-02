@@ -1,10 +1,10 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_USERNAME = credentials('DOCKER_USER').username
-        DOCKERHUB_PASSWORD = credentials('DOCKER_PSWRD').password
-        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS').accessKeyId
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SHEKET').secretKey
+        DOCKERHUB_USERNAME = credentials("DOCKER_USER").username
+        DOCKERHUB_PASSWORD = credentials("DOCKER_PSWRD").password
+        AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS").accessKeyId
+        AWS_SECRET_ACCESS_KEY = credentials("AWS_SHEKET").secretKey
     }
     stages {
         stage('Build') {
