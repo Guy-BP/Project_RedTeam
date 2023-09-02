@@ -1,10 +1,10 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_USERNAME = credentials("DOCKER_USER").username
-        DOCKERHUB_PASSWORD = credentials("DOCKER_PSWRD").password
-        AWS_ACCESS_KEY_ID = credentials("AWS_ACCESS").accessKeyId
-        AWS_SECRET_ACCESS_KEY = credentials("AWS_SHEKET").secretKey
+        DOCKERHUB_USERNAME = credentials('DOCKER_USER').username
+        DOCKERHUB_PASSWORD = credentials('DOCKER_PSWRD')
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS').accessKeyId
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SHEKET').secretKey
     }
     stages {
         stage('Build') {
@@ -21,11 +21,11 @@ pipeline {
                 sh 'sleep 5' // Give the container some time to start up
             }
         }
-         stage('Run Tests') {
-             steps {
-                 sh 'python3 -m pytest --junitxml==testresault.xml test/test.py'
-             }
-         }
+        stage('Run Tests') {
+            steps {
+                sh 'python3 -m pytest --junitxml=testresault.xml test/test.py'
+            }
+        }
         stage('Login and Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'DOCKER_USER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
@@ -69,13 +69,13 @@ pipeline {
             sh 'docker logout'
         }
 
-         success {
-             echo "Tests passed, pipeline succeeded!"
-             cleanUpContainers()
-         }
-         failure {
-             echo "Tests failed, pipeline failed!"
-             cleanUpContainers()
-         }
+        success {
+            echo "Tests passed, pipeline succeeded!"
+            cleanUpContainers()
+        }
+        failure {
+            echo "Tests failed, pipeline failed!"
+            cleanUpContainers()
+        }
     }
 }
