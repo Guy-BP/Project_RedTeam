@@ -1,10 +1,8 @@
-    provider "aws" {
-    access_key = "AKIAWGJSY6XBLG5SF6NF" 
-    secret_key = var.AWS_SECRET_ACCESS_KEY  
-    region     = "eu-central-1"
+provider "aws" {
+   access_key = "AKIAWGJSY6XBLG5SF6NF" 
+   secret_key = var.AWS_SECRET_ACCESS_KEY  
+   region     = "eu-central-1"
 }
-
-        }
     variable "awsprops" {
         default = {
             region = "eu-central-1"
