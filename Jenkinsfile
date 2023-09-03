@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        def DOCKERHUB_CREDENTIALS = params.get('dockerpss')
-        def AWS_SECRET_KEY = "${aws}"
+        DOCKERHUB_CREDENTIALS = params.get('dockerpss')
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -25,7 +25,7 @@ pipeline {
         }
         stage('Login') {
             steps {
-                sh 'docker login -u guy66bp -p $DOCKERHUB_CREDENTIALS'
+                sh "docker login -u guy66bp -p ${DOCKERHUB_CREDENTIALS}"
             }
         }
         stage('Push') {
@@ -37,18 +37,17 @@ pipeline {
             }
         }
         stage('TF init&plan') {
-            steps{
+            steps {
                 sh 'terraform init'
-                sh 'terraform plan -var "secret_key = $(AWS_SECRET_KEY)"'
-            }
-        }
-
+                sh 'terraform plan'
             }
         }
         stage('Remove images') {
             steps {
-                sh 'docker kill $(docker ps -q)'
-                   stage('TF Approval') {
+                sh 'docker rm -f $(docker ps -q)'
+            }
+        }
+        stage('TF Approval') {
             steps {
                 sh 'terraform apply -auto-approve'
             }
@@ -59,5 +58,4 @@ pipeline {
             sh 'docker logout'
         }
     }
-}
 }
