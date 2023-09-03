@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         def DOCKERHUB_CREDENTIALS = params.get('dockerpss')
-    }
+        def AWS_SECRET_KEY = "${aws}"
     stages {
         stage('Checkout') {
             steps {
@@ -37,13 +37,9 @@ pipeline {
             }
         }
         stage('TF init&plan') {
-            environment {
-                def AWS_SECRET_KEY = params.get('aws')
-        }
             steps{
-                sh 'echo $(AWS_SECRET_KEY)'
                 sh 'terraform init'
-                sh 'terraform plan'
+                sh 'terraform plan -var "secret_key = $(AWS_SECRET_KEY)"'
             }
         }
 
@@ -63,4 +59,5 @@ pipeline {
             sh 'docker logout'
         }
     }
+}
 }
