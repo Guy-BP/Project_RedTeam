@@ -12,7 +12,7 @@ variable "awsprops" {
     itype       = "t2.micro"
     subnet      = "subnet-0c27396f50d4febde"
     publicip    = true
-    keyname     = "myseckey"
+    keyname     = "Proj-Key"
     secgroupname = "Red-Team-SG"
   }
 }
