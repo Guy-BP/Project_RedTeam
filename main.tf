@@ -67,7 +67,7 @@ resource "aws_instance" "appserver" {
   instance_type                = lookup(var.awsprops, "itype")
   subnet_id                    = lookup(var.awsprops, "subnet")
   associate_public_ip_address  = true
-  key_name                     = "myseckey"
+  key_name                     = "Proj-Key"
   vpc_security_group_ids       = [aws_security_group.Red-Team-SG.id]
 
   root_block_device {
@@ -92,7 +92,7 @@ resource "aws_instance" "appfront" {
   instance_type                = lookup(var.awsprops, "itype")
   subnet_id                    = lookup(var.awsprops, "subnet")
   associate_public_ip_address  = true
-  key_name                     = "myseckey"
+  key_name                     = "Proj-Key"
   vpc_security_group_ids       = [aws_security_group.Red-Team-SG.id]
   user_data                    = file("front.sh")
 
