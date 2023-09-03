@@ -55,8 +55,7 @@ pipeline {
         }
         stage('TF Approval') {
             steps {
-                sh 'terraform apply -var-file=variables.tf -auto-approve'
-            }
+                sh 'terraform apply -var="AWS_SECRET_KEY=${AWS_SECRET_KEY} -auto-approve'
         }
     }
     post {
