@@ -9,7 +9,7 @@ pipeline {
             steps {
                 sh 'echo "AWS_SECRET_KEY: ${AWS_SECRET_KEY}"'
             }
-        }
+    }
         stage('Checkout') {
             steps {
                 checkout scm
@@ -55,7 +55,8 @@ pipeline {
         }
         stage('TF Approval') {
             steps {
-                sh 'terraform apply -var="AWS_SECRET_KEY=${AWS_SECRET_KEY} -auto-approve'
+                sh 'terraform apply -var="AWS_SECRET_KEY=${AWS_SECRET_KEY}" -auto-approve'
+            }
         }
     }
     post {
@@ -63,5 +64,4 @@ pipeline {
             sh 'docker logout'
         }
     }
-}
 }
