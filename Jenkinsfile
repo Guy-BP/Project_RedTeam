@@ -42,6 +42,7 @@ pipeline {
                 AWS_SECRET_KEY = params.get('awsecret')
         }
             steps{
+                echo $AWS_SECRET_KEY
                 sh 'terraform init'
                 sh 'terraform plan'
             }
