@@ -1,2 +1,5 @@
-AWS_SECRET_KEY = var.AWS_SECRET_KEY
-
+variable "AWS_SECRET_KEY" {
+  description = "AWS Secret Key"
+  type        = string
+  default     = "awsecret"
+}
