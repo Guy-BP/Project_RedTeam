@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKERHUB_CREDENTIALS = params.get('dockerpss')
+        AWS_SECRET_KEY = params.get('awsecret')
     }
     stages {
         stage('Checkout') {
@@ -49,7 +50,7 @@ pipeline {
         }
         stage('TF Approval') {
             steps {
-                sh 'terraform apply -auto-approve'
+                sh 'terraform apply -var-file=variables.tfvars -auto-approve'
             }
         }
     }
