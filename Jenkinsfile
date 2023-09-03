@@ -45,7 +45,7 @@ pipeline {
         stage('TF init&plan') {
             steps {
                 sh 'terraform init'
-                sh "terraform apply -var=\'AWS_SECRET_KEY=${AWS_SECRET_KEY}\'"
+                sh "terraform plan -var=\'AWS_SECRET_KEY=${AWS_SECRET_KEY}\'"
             }
         }
         stage('Remove images') {
