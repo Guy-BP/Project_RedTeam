@@ -38,8 +38,10 @@ pipeline {
             }
         }
         stage('TF init&plan') {
-            steps {
-                sh 'export AWS_SECRET_KEY'
+            environment {
+                AWS_SECRET_KEY = params.get('awsecret')
+        }
+            steps{
                 sh 'terraform init'
                 sh 'terraform plan'
             }
