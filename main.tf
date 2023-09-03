@@ -3,7 +3,7 @@ variable "AWS_SECRET_ACCESS_KEY" {
   default = "$(AWS_SECRET_KEY)"
 }
 provider "aws" {
-   access_key = "AKIAWGJSY6XBCPCB5QVL" 
+   access_key = "AKIAWGJSY6XBJPOKAR2H" 
    secret_key = var.AWS_SECRET_ACCESS_KEY
    region     = "eu-central-1"
 }

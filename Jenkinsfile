@@ -2,7 +2,6 @@ pipeline {
     agent any
     environment {
         def DOCKERHUB_CREDENTIALS = params.get('dockerpss')
-        def AWS_SECRET_KEY = params.get('awsecret')
     }
     stages {
         stage('Checkout') {
@@ -39,7 +38,7 @@ pipeline {
         }
         stage('TF init&plan') {
             environment {
-                AWS_SECRET_KEY = params.get('awsecret')
+                def AWS_SECRET_KEY = params.get('aws')
         }
             steps{
                 sh 'echo $(AWS_SECRET_KEY)'
