@@ -10,7 +10,7 @@ variable "awsprops" {
     vpc         = "vpc-0302daf1399df485c"
     ami         = "ami-04e601abe3e1a910f"
     itype       = "t2.micro"
-    subnet      = "subnet-060d6a838b66de62c"
+    subnet      = "subnet-0c27396f50d4febde"
     publicip    = true
     keyname     = "myseckey"
     secgroupname = "Red-Team-SG"
