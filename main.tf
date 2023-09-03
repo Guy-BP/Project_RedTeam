@@ -7,7 +7,7 @@ provider "aws" {
 variable "awsprops" {
   default = {
     region      = "eu-central-1"
-    vpc         = "vpc-078c9a7ee61fcfeea"
+    vpc         = "vpc-0302daf1399df485c"
     ami         = "ami-04e601abe3e1a910f"
     itype       = "t2.micro"
     subnet      = "subnet-060d6a838b66de62c"
