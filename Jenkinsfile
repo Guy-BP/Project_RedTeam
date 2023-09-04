@@ -5,11 +5,6 @@ pipeline {
         AWS_SECRET_KEY = params.get('awsecret')
     }
     stages {
-        stage('Debug') {
-            steps {
-                sh 'echo "AWS_SECRET_KEY: ${AWS_SECRET_KEY}"'
-            }
-    }
         stage('Checkout') {
             steps {
                 checkout scm

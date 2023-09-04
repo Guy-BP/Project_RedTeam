@@ -23,37 +23,16 @@ resource "aws_security_group" "Red-Team-SG" {
   vpc_id      = lookup(var.awsprops, "vpc")
 
   ingress {
-    from_port   = 80
+    from_port   = 0
     protocol    = "tcp"
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    protocol    = "tcp"
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 80
-    protocol    = "tcp"
-    to_port     = 3000
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 80
-    protocol    = "tcp"
-    to_port     = 3001
+    to_port     = 65535
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "-1"
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -79,7 +58,7 @@ resource "aws_instance" "appserver" {
   user_data = file("server.sh")
 
   tags = {
-    Name        = "SERVER01"
+    Name        = "ProjServer"
     Environment = "DEV"
     OS          = "UBUNTU"
   }
@@ -103,7 +82,7 @@ resource "aws_instance" "appfront" {
   }
 
   tags = {
-    Name        = "FRONTENT01"
+    Name        = "ProjFront"
     Environment = "DEV"
     OS          = "UBUNTU"
   }
