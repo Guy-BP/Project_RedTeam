@@ -19,9 +19,9 @@ pipeline {
         stage('Deploy Containers') {
             steps {
                 sh 'docker run -d -p 3001:3001 guy66bp/appserver'
-                sh 'sleep 5' // Give the container some time to start up
+                sh 'sleep 2' // Give the container some time to start up
                 sh 'docker run -d -p 3000:3000 guy66bp/appfront'
-                sh 'sleep 5' // Give the container some time to start up
+                sh 'sleep 2' // Give the container some time to start up
             }
         }
         stage('Login') {
