@@ -7,10 +7,10 @@ provider "aws" {
 variable "awsprops" {
   default = {
     region      = "eu-central-1"
-    vpc         = "vpc-018416df8d06e6d3e"
+    vpc         = "vpc-0960ef3edfd4bf862"
     ami         = "ami-04e601abe3e1a910f"
     itype       = "t2.micro"
-    subnet      = "subnet-033b933eb9bfefb23"
+    subnet      = "subnet-0e513cd6e866f3807"
     publicip    = true
     keyname     = "finalProj-guybp"
     secgroupname = "Red-Team-SG"
