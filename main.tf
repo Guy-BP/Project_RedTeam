@@ -1,5 +1,5 @@
 provider "aws" {
-  access_key = "AKIAWGJSY6XBK426UXMD"
+  access_key = "AKIAZKQK7CSKHOSOCI6E"
   secret_key = var.AWS_SECRET_KEY
   region     = "eu-central-1"
 }
@@ -7,12 +7,12 @@ provider "aws" {
 variable "awsprops" {
   default = {
     region      = "eu-central-1"
-    vpc         = "vpc-0302daf1399df485c"
+    vpc         = "vpc-018416df8d06e6d3e"
     ami         = "ami-04e601abe3e1a910f"
     itype       = "t2.micro"
-    subnet      = "subnet-0c27396f50d4febde"
+    subnet      = "subnet-033b933eb9bfefb23"
     publicip    = true
-    keyname     = "Proj-Key"
+    keyname     = "finalProj-guybp"
     secgroupname = "Red-Team-SG"
   }
 }
@@ -67,7 +67,7 @@ resource "aws_instance" "appserver" {
   instance_type                = lookup(var.awsprops, "itype")
   subnet_id                    = lookup(var.awsprops, "subnet")
   associate_public_ip_address  = true
-  key_name                     = "Proj-Key"
+  key_name                     = "finalProj-guybp"
   vpc_security_group_ids       = [aws_security_group.Red-Team-SG.id]
 
   root_block_device {
@@ -92,7 +92,7 @@ resource "aws_instance" "appfront" {
   instance_type                = lookup(var.awsprops, "itype")
   subnet_id                    = lookup(var.awsprops, "subnet")
   associate_public_ip_address  = true
-  key_name                     = "Proj-Key"
+  key_name                     = "finalProj-guybp"
   vpc_security_group_ids       = [aws_security_group.Red-Team-SG.id]
   user_data                    = file("front.sh")
 
