@@ -41,6 +41,7 @@ pipeline {
                 // Remove running Docker containers
                 sh 'docker rm -f $(docker ps -q)'
             }
+        }
     }
     post {
         success {
@@ -52,5 +53,4 @@ pipeline {
             echo 'Tests failed! Pipeline failed.'
         }
     }
-}
 }
