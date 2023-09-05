@@ -26,7 +26,7 @@ pipeline {
             steps {
                 // Run pytest for your tests and capture the exit code
                 script {
-                    def exitCode = sh(script: 'pytest test/test.py', returnStatus: true)
+                    def exitCode = sh(script: 'pytest test.py', returnStatus: true)
                     if (exitCode != 0) {
                         error 'Tests failed! Pipeline failed.'
                     }
