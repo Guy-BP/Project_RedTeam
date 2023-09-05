@@ -27,9 +27,12 @@ pipeline {
         }
         stage('Run Tests') {
             steps {
-                // Run pytest for your tests and capture the exit code
+                // Run pytest for your tests and generate the JUnit-style XML report
+                sh 'pytest --junitxml=test-results/test-report.xml ./test'
+
+                // Capture the exit code of pytest
                 script {
-                    def testContainerExitCode = sh(script: 'docker run guy66bp/apptest', returnStatus: true)
+                    def testContainerExitCode = sh(script: 'docker run -d guy66bp/apptest', returnStatus: true)
                     if (testContainerExitCode != 0) {
                         currentBuild.result = 'FAILURE' // Set the build result to FAILURE
                         error 'Tests failed! Pipeline failed.'
@@ -40,8 +43,8 @@ pipeline {
     }
     post {
         always {
-            // Publish the test results to the console
-            junit '**/test-results/*.xml'
+            // Publish the JUnit-style test results to the console
+            junit 'test-results/test-report.xml'
         }
         success {
             // Only execute this block if the tests succeeded
@@ -53,4 +56,3 @@ pipeline {
         }
     }
 }
-
