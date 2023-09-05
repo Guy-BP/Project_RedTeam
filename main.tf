@@ -69,7 +69,6 @@ resource "aws_instance" "appserver" {
     sudo groupadd docker
     sudo usermod -aG docker ubuntu
     docker pull guy66bp/appserver
-    sleep 15 # Give the container some time to pull
     docker run -d -p 3001:3001 guy66bp/appserver
   EOF
 
@@ -103,7 +102,6 @@ resource "aws_instance" "appfront" {
     sudo groupadd docker
     sudo usermod -aG docker ubuntu
     docker pull guy66bp/frontapp
-    sleep 15 # Give the container some time to pull
     docker run -d -p 3000:3000 guy66bp/appfront
 EOF
 
