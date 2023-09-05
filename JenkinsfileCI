@@ -25,32 +25,32 @@ pipeline {
                 sh 'sleep 2' // Give the container some time to start up
             }
         }
-        stage('Deploy test container') {
+        stage('Run Tests') {
             steps {
                 // Run pytest for your tests and capture the exit code
                 script {
-                    def exitCode = sh(script: 'docker run -d guy66bp/apptest', returnStatus: true)
-                    if (exitCode != 0) {
+                    def testContainerExitCode = sh(script: 'docker run guy66bp/apptest', returnStatus: true)
+                    if (testContainerExitCode != 0) {
+                        currentBuild.result = 'FAILURE' // Set the build result to FAILURE
                         error 'Tests failed! Pipeline failed.'
                     }
                 }
             }
         }
-        stage('Remove containers') {
-            steps {
-                // Remove running Docker containers
-                sh 'docker rm -f $(docker ps -q)'
-            }
-        }
     }
     post {
+        always {
+            // Publish the test results to the console
+            junit '**/test-results/*.xml'
+        }
         success {
-            // Only execute this block if the previous stages succeeded
+            // Only execute this block if the tests succeeded
             echo 'All tests passed! Pipeline succeeded.'
         }
         failure {
-            // Only execute this block if any of the previous stages failed
+            // Only execute this block if the tests or any other stages failed
             echo 'Tests failed! Pipeline failed.'
         }
     }
 }
+
