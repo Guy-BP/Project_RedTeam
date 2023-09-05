@@ -10,9 +10,6 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo groupadd docker
 sudo usermod -aG docker ubuntu
-
 docker pull guy66bp/frontapp
 sleep 15 # Give the container some time to pull
-
 docker run -d -p 3000:3000 guy66bp/appfront
-sleep 5 # Give the container some time to start up

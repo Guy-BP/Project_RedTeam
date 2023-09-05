@@ -55,7 +55,23 @@ resource "aws_instance" "appserver" {
     volume_type           = "gp2"
   }
 
-  user_data = file("server.sh")
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo apt update
+    sudo apt-get install ca-certificates curl gnupg
+    sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+    sudo apt update
+    sudo apt-get install docker-ce
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sudo groupadd docker
+    sudo usermod -aG docker ubuntu
+    docker pull guy66bp/appserver
+    sleep 15 # Give the container some time to pull
+    docker run -d -p 3001:3001 guy66bp/appserver
+  EOF
 
   tags = {
     Name        = "ProjServer"
@@ -73,7 +89,24 @@ resource "aws_instance" "appfront" {
   associate_public_ip_address  = true
   key_name                     = "finalProj-guybp"
   vpc_security_group_ids       = [aws_security_group.Red-Team-SG.id]
-  user_data                    = file("front.sh")
+  user_data                    = <<-EOF
+    #! /bin/bash
+    sudo apt update
+    sudo apt-get install nano
+    sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+    sudo apt update
+    sudo apt-get install docker-ce
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sudo groupadd docker
+    sudo usermod -aG docker ubuntu
+    docker pull guy66bp/frontapp
+    sleep 15 # Give the container some time to pull
+    docker run -d -p 3000:3000 guy66bp/appfront
+EOF
+
 
   root_block_device {
     delete_on_termination = true
