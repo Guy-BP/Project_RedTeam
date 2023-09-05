@@ -63,7 +63,7 @@ resource "aws_instance" "appserver" {
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
     sudo apt update
-    sudo apt-get install docker.io
+    sudo apt-get install -y docker.io
     sudo systemctl start docker
     sudo systemctl enable docker
     sudo groupadd docker
@@ -97,7 +97,7 @@ resource "aws_instance" "appfront" {
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
     sudo apt update
-    sudo apt-get install docker.io
+    sudo apt-get install -y docker.io
     sudo systemctl start docker
     sudo systemctl enable docker
     sudo groupadd docker
