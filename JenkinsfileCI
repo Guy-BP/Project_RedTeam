@@ -11,6 +11,10 @@ pipeline {
                 // Build Docker images for the server and frontend
                 sh 'docker build -t guy66bp/appserver ./server'
                 sh 'docker build -t guy66bp/appfront ./frontend'
+
+                // Install Python and Pytest
+                sh 'apt-get update && apt-get install -y python3 python3-pip'
+                sh 'pip3 install pytest'
             }
         }
         stage('Deploy containers') {
