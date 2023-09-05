@@ -16,7 +16,7 @@ pipeline {
                 sh 'docker build -t guy66bp/apptest ./test'
             }
         }
-        stage('Deploy containers') {
+        stage('Deploy app containers') {
             steps {
                 // Deploy Docker containers for the server and frontend
                 sh 'docker run -d -p 3001:3001 guy66bp/appserver'
@@ -25,7 +25,7 @@ pipeline {
                 sh 'sleep 2' // Give the container some time to start up
             }
         }
-        stage('Run test container') {
+        stage('Deploy test container') {
             steps {
                 // Run pytest for your tests and capture the exit code
                 script {
@@ -36,6 +36,11 @@ pipeline {
                 }
             }
         }
+        stage('Remove containers') {
+            steps {
+                // Remove running Docker containers
+                sh 'docker rm -f $(docker ps -q)'
+            }
     }
     post {
         success {
@@ -47,4 +52,5 @@ pipeline {
             echo 'Tests failed! Pipeline failed.'
         }
     }
+}
 }
