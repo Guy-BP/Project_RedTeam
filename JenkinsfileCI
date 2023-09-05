@@ -12,9 +12,8 @@ pipeline {
                 sh 'docker build -t guy66bp/appserver ./server'
                 sh 'docker build -t guy66bp/appfront ./frontend'
 
-                // Install Python and Pytest
-                sh 'apt install -y python3 python3-pip'
-                sh 'pip3 install pytest'
+                // Build image for Pytest
+                sh 'docker build -t guy66bp/apptest ./test'
             }
         }
         stage('Deploy containers') {
@@ -26,11 +25,11 @@ pipeline {
                 sh 'sleep 2' // Give the container some time to start up
             }
         }
-        stage('Run tests') {
+        stage('Run test container') {
             steps {
                 // Run pytest for your tests and capture the exit code
                 script {
-                    def exitCode = sh(script: 'pytest test.py', returnStatus: true)
+                    def exitCode = sh(script: 'docker run -d guy66bp/apptest', returnStatus: true)
                     if (exitCode != 0) {
                         error 'Tests failed! Pipeline failed.'
                     }
